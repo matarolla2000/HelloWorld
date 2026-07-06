@@ -11,15 +11,14 @@
     
     <h1 class="zagolovok">Регистрация</h1>
     
-    <form method="post" action="{{ url_for('login') }}">
     <div class="card1">
         <label>Логин</label><br>
-        <input class="imy wid" type="text" name="login" placeholder="Введите ваш логин...">
+        <input class="imy wid" type="text" placeholder="Введите ваш логин...">
     </div>
     
     <div class="card3">
         <label>Пароль</label><br>
-        <input class="parol wid" type="password" name="password" placeholder="Введите ваш пароль...">
+        <input class="parol wid" type="password" placeholder="Введите ваш пароль...">
     </div>
     
     <div class="card4">
@@ -28,8 +27,9 @@
                 Я согласен
             </button>
     </div>
+      <form method="post" action="{{ url_for('login') }}"">
          <button type="submit" class="sub-5">Зарегистрироваться</button>
-    </form>
+      </form>
     </div>
 
 </body>
