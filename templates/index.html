@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DietPlan</title>
+    <title>HelloWorld</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1><span class="teal">Hello</span><span class="green">World</span></h1>
+        <h1><span class="teal"><img src="{{ url_for('static', filename='Logo.png') }}" width="91" height="65"/>Hello</span><span class="teal">World</span></h1>
         <p>Твой план питания на каждый день</p>
         {% if login %}
             <p>Привет, <strong>{{ login }}</strong>! <a href="{{ url_for('logout') }}">Выйти</a></p>
@@ -21,7 +21,6 @@
             Рассчитываем норму калорий и подбираем меню на день,
             чтобы тебе не пришлось делать это самому.
         </p>
-        <button>Собрать меню на сегодня</button>
     </section>
 
     <section class="bot">
@@ -49,7 +48,7 @@
     </section>
 
     <footer>
-        <p>© 2026 DietPlan</p>
+        <p>© 2026 HelloWorld</p>
     </footer>
 </body>
 </html>
