@@ -96,9 +96,6 @@ header h1 {
     font-size: 0.9rem;
 }
 
-/* ==========================================
-   ПОДВАЛ
-   ========================================== */
 footer {
     max-width: 700px;
     margin: 0 auto;
@@ -106,4 +103,10 @@ footer {
     color: #5c6f6a;
     padding: 20px;
     padding-bottom: 40px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
