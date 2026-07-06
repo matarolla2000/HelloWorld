@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тарелка — персональный диетолог</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1F2318;
+    --ink-soft:#565C4E;
+    --paper:#F1EDE1;
+    --card:#FFFDF7;
+    --line:rgba(31,35,24,0.14);
+    --sage:#4A5D45;
+    --sage-deep:#333F2F;
+    --sage-tint:#DCE3D4;
+    --turmeric:#D9A62E;
+    --turmeric-tint:#F6E6BB;
+    --beet:#8C3B4A;
+    --beet-tint:#EFD9DC;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(31,35,24,0.06), 0 8px 24px -12px rgba(31,35,24,0.18);
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans',sans-serif;
+    line-height:1.45;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:inherit;}
+  ::selection{background:var(--turmeric-tint);}
+
+  a{color:inherit;}
+
+  /* focus visibility */
+  button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid var(--sage);
+    outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .tab-panel{transition:opacity .25s ease;}
+    .fridge-item, .recipe-card, .shop-row{transition:transform .15s ease, box-shadow .15s ease;}
+    .plate-ring{transition:background 0.6s ease;}
+  }
+
+  /* ---------- Shell ---------- */
+  .app-shell{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:28px 0 20px;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand-mark{
+    width:38px;height:38px;flex:none;
+  }
+  .brand-text .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--sage);
+    display:block;
+    margin-bottom:2px;
+  }
+  .brand-text h1{font-size:22px;}
+
+  nav.tabs{
+    display:flex;
+    gap:4px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px;
+    box-shadow:var(--shadow);
+  }
+  nav.tabs button{
+    border:none;
+    background:transparent;
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  nav.tabs button.active{
+    background:var(--sage);
+    color:#fff;
+  }
+
+  .goal-strip{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 18px;
+    box-shadow:var(--shadow);
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .goal-strip label{font-size:13px;color:var(--ink-soft);font-weight:600;}
+  .goal-strip input[type=range]{accent-color:var(--sage);width:180px;}
+  .goal-strip .kcal-value{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;background:var(--sage-tint);padding:4px 10px;border-radius:8px;}
+  .goal-strip .hint{font-size:12.5px;color:var(--ink-soft);margin-left:auto;}
+
+  section.tab-panel{display:none;}
+  section.tab-panel.active{display:block;}
+
+  .panel-head{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    margin-bottom:18px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .panel-head h2{font-size:26px;}
+  .panel-head p{margin:4px 0 0;color:var(--ink-soft);font-size:14px;max-width:52ch;}
+
+  /* ---------- Fridge ---------- */
+  .fridge-layout{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:24px;
+    align-items:start;
+  }
+
+  .add-form{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+    display:grid;
+    gap:10px;
+    grid-template-columns:1fr 1fr;
+  }
+  .add-form .full{grid-column:1/-1;}
+  .add-form label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+    display:block;
+    margin-bottom:4px;
+  }
+  .add-form input, .add-form select{
+    width:100%;
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .add-form .qty-row{display:flex;gap:8px;}
+  .add-form .qty-row input{width:60%;}
+  .add-form .qty-row select{width:40%;}
+  .btn{
+    border:none;
+    border-radius:9px;
+    padding:10px 16px;
+    font-weight:600;
+    font-size:13.5px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    justify-content:center;
+  }
+  .btn-primary{background:var(--sage);color:#fff;}
+  .btn-primary:hover{background:var(--sage-deep);}
+  .btn-ghost{background:transparent;color:var(--sage);border:1px solid var(--sage);}
+  .btn-ghost:hover{background:var(--sage-tint);}
+  .btn-quiet{background:transparent;color:var(--ink-soft);}
+  .btn-quiet:hover{color:var(--beet);}
+  .btn-small{padding:5px 10px;font-size:12px;border-radius:7px;}
+
+  .shelf-groups{display:flex;flex-direction:column;gap:16px;}
+  .shelf{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .shelf-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    font-weight:600;
+    font-size:14px;
+  }
+  .shelf-title .count{
+    margin-left:auto;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .shelf-icon{width:18px;height:18px;flex:none;color:var(--sage);}
+  .shelf-empty{padding:16px;color:var(--ink-soft);font-size:13.5px;font-style:italic;}
+  .fridge-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .fridge-item:last-child{border-bottom:none;}
+  .fridge-item .name{font-weight:600;font-size:14px;flex:1;min-width:0;}
+  .fridge-item .name small{display:block;font-weight:400;color:var(--ink-soft);font-size:11.5px;margin-top:1px;}
+  .stepper{display:flex;align-items:center;gap:6px;}
+  .stepper button{
+    width:24px;height:24px;border-radius:50%;border:1px solid var(--line);
+    background:#fff;cursor:pointer;font-size:14px;line-height:1;color:var(--sage-deep);
+  }
+  .stepper .qty{
+    min-width:64px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;
+  }
+
+  /* ---------- Plan / recipe cards ---------- */
+  .plan-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+    gap:18px;
+  }
+  .recipe-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .recipe-card .slot{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--sage);
+  }
+  .recipe-card h3{font-size:18px;line-height:1.2;}
+  .macro-row{display:flex;gap:10px;font-size:12px;color:var(--ink-soft);}
+  .macro-row span b{color:var(--ink);font-family:'IBM Plex Mono',monospace;}
+  .ingredient-list{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:4px;}
+  .ingredient-list li{display:flex;align-items:center;gap:6px;}
+  .dot{width:7px;height:7px;border-radius:50%;flex:none;}
+  .dot.ok{background:var(--sage);}
+  .dot.missing{background:var(--beet);}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:6px;}
+  .eaten-toggle{
+    border:1px solid var(--sage);
+    background:transparent;
+    color:var(--sage);
+    padding:7px 14px;
+    border-radius:8px;
+    font-weight:600;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .eaten-toggle.done{background:var(--sage);color:#fff;}
+  .empty-plan{
+    background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
+    padding:40px 24px;text-align:center;color:var(--ink-soft);
+  }
+
+  /* ---------- Shopping ---------- */
+  .shop-columns{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start;}
+  .shop-list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .shop-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px;}
+  .shop-row:last-child{border-bottom:none;}
+  .shop-row .qty{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--beet);}
+  .shop-row small{display:block;color:var(--ink-soft);font-size:11.5px;}
+  .balance-note{
+    background:var(--turmeric-tint);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    font-size:13.5px;
+    margin-bottom:14px;
+  }
+  .balance-note b{display:block;font-family:'Fraunces',serif;font-size:15px;margin-bottom:4px;}
+
+  /* ---------- Diary / plate ---------- */
+  .diary-layout{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;}
+  .plate-wrap{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:26px;display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  .plate-outer{
+    width:230px;height:230px;border-radius:50%;
+    background:
+      repeating-conic-gradient(from 0deg, #fff 0deg 6deg, #ECE7D8 6deg 12deg);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:inset 0 2px 6px rgba(31,35,24,0.12), 0 10px 20px -10px rgba(31,35,24,.35);
+  }
+  .plate-ring{
+    width:190px;height:190px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--line) 0deg 360deg);
+  }
+  .plate-inner{
+    width:130px;height:130px;border-radius:50%;background:var(--card);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    box-shadow:inset 0 1px 4px rgba(31,35,24,.15);
+  }
+  .plate-inner .kcal{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:22px;}
+  .plate-inner .kcal-label{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;}
+  .plate-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:12px;}
+  .plate-legend span{display:flex;align-items:center;gap:5px;}
+  .plate-legend i{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .overflow-note{font-size:12px;color:var(--beet);text-align:center;}
+
+  .diary-side{display:flex;flex-direction:column;gap:18px;}
+  .streak-card, .history-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;
+  }
+  .streak-card .big{font-family:'Fraunces',serif;font-size:34px;line-height:1;}
+  .streak-card .cap{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .history-bars{display:flex;align-items:flex-end;gap:10px;height:110px;margin-top:14px;}
+  .history-bars .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;}
+  .history-bars .bar{width:100%;border-radius:6px 6px 3px 3px;background:var(--sage-tint);position:relative;}
+  .history-bars .bar.over{background:var(--turmeric-tint);}
+  .history-bars .day-label{font-size:10.5px;color:var(--ink-soft);}
+  .eaten-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .eaten-log li{font-size:13.5px;display:flex;justify-content:space-between;gap:8px;color:var(--ink-soft);}
+  .eaten-log li b{color:var(--ink);font-weight:600;}
+  .eaten-log .empty{font-style:italic;}
+
+  footer.note{
+    margin-top:40px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px;
+  }
+
+  @media (max-width: 880px){
+    .fridge-layout, .shop-columns, .diary-layout{grid-template-columns:1fr;}
+    .goal-strip .hint{margin-left:0;}
+  }
+  @media (max-width: 560px){
+    nav.tabs{width:100%;overflow-x:auto;}
+    .add-form{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill="#F1EDE1" stroke="#4A5D45" stroke-width="2"/>
+        <circle cx="20" cy="20" r="10" fill="none" stroke="#4A5D45" stroke-width="1.4" stroke-dasharray="2 3"/>
+        <circle cx="20" cy="20" r="3.2" fill="#D9A62E"/>
+      </svg>
+      <div class="brand-text">
+        <span class="eyebrow">персональный диетолог</span>
+        <h1>Тарелка</h1>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Разделы приложения">
+      <button role="tab" aria-selected="true" data-tab="fridge" class="active">Холодильник</button>
+      <button role="tab" aria-selected="false" data-tab="plan">Меню на день</button>
+      <button role="tab" aria-selected="false" data-tab="shopping">Покупки</button>
+      <button role="tab" aria-selected="false" data-tab="diary">Дневник</button>
+    </nav>
+  </div>
+
+  <div class="goal-strip">
+    <label for="kcalTarget">Цель по калориям в день</label>
+    <input type="range" id="kcalTarget" min="1400" max="3000" step="50" value="2000">
+    <span class="kcal-value mono"><span id="kcalTargetValue">2000</span> ккал</span>
+    <span class="hint">Меню и «тарелка дня» пересчитываются под эту цель</span>
+  </div>
+
+  <!-- ЛЕДОВНИК -->
+  <section class="tab-panel active" id="panel-fridge">
+    <div class="panel-head">
+      <div>
+        <h2>Что есть дома</h2>
+        <p>Добавляйте продукты по мере покупок — от этого списка строится меню и рекомендации по докупке.</p>
+      </div>
+    </div>
+
+    <div class="fridge-layout">
+      <div class="shelf-groups" id="shelfGroups"></div>
+
+      <form class="add-form" id="addForm">
+        <div class="full">
+          <label for="itemName">Продукт</label>
+          <input type="text" id="itemName" placeholder="Например, куриное филе" required>
+        </div>
+        <div>
+          <label for="itemCategory">Категория</label>
+          <select id="itemCategory">
+            <option value="protein">Белковые продукты</option>
+            <option value="veg">Овощи и зелень</option>
+            <option value="fruit">Фрукты и ягоды</option>
+            <option value="dairy">Молочное</option>
+            <option value="grain">Крупы и злаки</option>
+            <option value="other">Прочее</option>
+          </select>
+        </div>
+        <div>
+          <label for="itemQty">Количество</label>
+          <div class="qty-row">
+            <input type="number" id="itemQty" min="0" step="1" value="1" required>
+            <select id="itemUnit">
+              <option value="г">г</option>
+              <option value="мл">мл</option>
+              <option value="шт">шт</option>
+            </select>
+          </div>
+        </div>
+        <div class="full">
+          <button type="submit" class="btn btn-primary" style="width:100%;">Добавить в холодильник</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- МЕНЮ -->
+  <section class="tab-panel" id="panel-plan">
+    <div class="panel-head">
+      <div>
+        <h2>Меню на сегодня</h2>
+        <p>Подбирается из того, что уже есть в холодильнике, и подгоняется под вашу цель по калориям.</p>
+      </div>
+      <button class="btn btn-primary" id="generateBtn">Сформировать меню</button>
+    </div>
+    <div id="planArea"></div>
+  </section>
+
+  <!-- ПОКУПКИ -->
+  <section class="tab-panel" id="panel-shopping">
+    <div class="panel-head">
+      <div>
+        <h2>Список покупок</h2>
+        <p>Чего не хватает для сегодняшнего меню и что стоит докупить для баланса рациона.</p>
+      </div>
+    </div>
+    <div id="shoppingArea"></div>
+  </section>
+
+  <!-- ДНЕВНИК -->
+  <section class="tab-panel" id="panel-diary">
+    <div class="panel-head">
+      <div>
+        <h2>Дневник питания</h2>
+        <p>Отмечайте съеденные блюда в меню — здесь видно, насколько сегодня соблюдён план.</p>
+      </div>
+    </div>
+    <div class="diary-layout">
+      <div class="plate-wrap">
+        <div class="plate-outer">
+          <div class="plate-ring" id="plateRing">
+            <div class="plate-inner">
+              <span class="kcal mono" id="plateKcal">0</span>
+              <span class="kcal-label">из <span id="plateTarget">2000</span> ккал</span>
+            </div>
+          </div>
+        </div>
+        <div class="plate-legend">
+          <span><i style="background:var(--sage)"></i>белки</span>
+          <span><i style="background:var(--turmeric)"></i>жиры</span>
+          <span><i style="background:var(--beet)"></i>углеводы</span>
+        </div>
+        <div class="overflow-note" id="overflowNote" style="display:none;"></div>
+      </div>
+      <div class="diary-side">
+        <div class="streak-card">
+          <div class="big mono" id="streakValue">0</div>
+          <div class="cap">дней подряд в пределах цели ±10%</div>
+        </div>
+        <div class="history-card">
+          <h3 style="font-size:15px;">Последние 7 дней</h3>
+          <div class="history-bars" id="historyBars"></div>
+        </div>
+        <div class="history-card">
+          <h3 style="font-size:15px;">Съедено сегодня</h3>
+          <ul class="eaten-log" id="eatenLog"><li class="empty">Пока ничего не отмечено</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="note">
+    Данные хранятся только в течение текущей сессии в браузере и сбрасываются при перезагрузке страницы —
+    для постоянного хранения потребуется подключить базу данных на сервере.
+  </footer>
+</div>
+
+<script>
+(function(){
+
+  /* ======================= ДАННЫЕ ======================= */
+
+  const CATEGORY_LABELS = {
+    protein:"Белковые продукты",
+    veg:"Овощи и зелень",
+    fruit:"Фрукты и ягоды",
+    dairy:"Молочное",
+    grain:"Крупы и злаки",
+    other:"Прочее"
+  };
+
+  const CATEGORY_ICONS = {
+    protein:'<svg class="shelf-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.6"/></svg>',
+    veg:'<svg class="shelf-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21c-4-2-6-6-6-10a6 6 0 0 1 6-6c4 0 6 4 6 8 0 4-2 8-6 8Z" stroke="currentColor" stroke-width="1.6"/></svg>',
+    fruit:'<svg class="shelf-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="14" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M12 7c0-2 1.5-3.5 3-4" stroke="currentColor" stroke-width="1.6"/></svg>',
+    dairy:'<svg class="shelf-icon" viewBox="0 0 24 24" fill="none"><path d="M9 3h6l1 4-2 2v11a1 1 0 0 1-1 1H11a1 1 0 0 1-1-1V9L8 7Z" stroke="currentColor" stroke-width="1.6"/></svg>',
+    grain:'<svg class="shelf-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3c3 3 3 6 0 9-3 3-3 6 0 9M8 8c1.5 1.5 1.5 3 0 4.5M16 8c-1.5 1.5-1.5 3 0 4.5" stroke="currentColor" stroke-width="1.5"/></svg>',
+    other:'<svg class="shelf-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/></svg>'
+  };
+
+  const MEAL_LABELS = {breakfast:"Завтрак", lunch:"Обед", dinner:"Ужин", snack:"Перекус"};
+  const MEAL_SHARE = {breakfast:0.25, lunch:0.35, dinner:0.30, snack:0.10};
+
+  // Библиотека блюд
+  const RECIPES = [
+    {id:"r1", meal:"breakfast", name:"Овсянка с бананом и мёдом", kcal:380, p:12, f:7, c:65,
+      ing:[{name:"овсянка",qty:60,unit:"г"},{name:"банан",qty:1,unit:"шт"},{name:"мёд",qty:20,unit:"г"},{name:"молоко",qty:150,unit:"мл"}]},
+    {id:"r2", meal:"breakfast", name:"Творожная запеканка", kcal:320, p:28, f:10, c:28,
+      ing:[{name:"творог",qty:200,unit:"г"},{name:"яйцо",qty:2,unit:"шт"},{name:"мёд",qty:20,unit:"г"}]},
+    {id:"r3", meal:"breakfast", name:"Яичница с помидорами и шпинатом", kcal:300, p:21, f:22, c:6,
+      ing:[{name:"яйцо",qty:3,unit:"шт"},{name:"помидор",qty:1,unit:"шт"},{name:"шпинат",qty:50,unit:"г"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+    {id:"r4", meal:"breakfast", name:"Гречневая каша с молоком", kcal:340, p:12, f:8, c:55,
+      ing:[{name:"гречка",qty:60,unit:"г"},{name:"молоко",qty:200,unit:"мл"}]},
+    {id:"r5", meal:"breakfast", name:"Омлет с сыром и помидорами", kcal:340, p:24, f:25, c:6,
+      ing:[{name:"яйцо",qty:3,unit:"шт"},{name:"сыр твёрдый",qty:30,unit:"г"},{name:"помидор",qty:1,unit:"шт"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+
+    {id:"r6", meal:"main", name:"Куриное филе с рисом и овощами", kcal:480, p:38, f:14, c:50,
+      ing:[{name:"куриное филе",qty:150,unit:"г"},{name:"рис",qty:70,unit:"г"},{name:"помидор",qty:1,unit:"шт"},{name:"огурец",qty:1,unit:"шт"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+    {id:"r7", meal:"main", name:"Гречка с курицей и луком", kcal:460, p:36, f:13, c:48,
+      ing:[{name:"гречка",qty:70,unit:"г"},{name:"куриное филе",qty:150,unit:"г"},{name:"лук репчатый",qty:1,unit:"шт"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+    {id:"r8", meal:"main", name:"Салат с тунцом и яйцом", kcal:380, p:34, f:22, c:10,
+      ing:[{name:"тунец консервированный",qty:1,unit:"шт"},{name:"яйцо",qty:2,unit:"шт"},{name:"огурец",qty:1,unit:"шт"},{name:"помидор",qty:1,unit:"шт"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+    {id:"r9", meal:"main", name:"Овощное рагу с фасолью", kcal:320, p:16, f:10, c:38,
+      ing:[{name:"помидор",qty:2,unit:"шт"},{name:"лук репчатый",qty:1,unit:"шт"},{name:"фасоль консервированная",qty:200,unit:"г"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+    {id:"r10", meal:"main", name:"Лосось на пару с брокколи", kcal:380, p:34, f:22, c:8,
+      ing:[{name:"лосось",qty:150,unit:"г"},{name:"брокколи",qty:150,unit:"г"},{name:"оливковое масло",qty:10,unit:"мл"}]},
+    {id:"r11", meal:"main", name:"Куриный суп с гречкой", kcal:300, p:24, f:8, c:30,
+      ing:[{name:"куриное филе",qty:100,unit:"г"},{name:"гречка",qty:40,unit:"г"},{name:"лук репчатый",qty:1,unit:"шт"},{name:"помидор",qty:1,unit:"шт"}]},
+    {id:"r12", meal:"main", name:"Паста с курицей и шпинатом", kcal:520, p:34, f:14, c:60,
+      ing:[{name:"паста",qty:80,unit:"г"},{name:"куриное филе",qty:120,unit:"г"},{name:"шпинат",qty:80,unit:"г"},{name:"сыр твёрдый",qty:30,unit:"г"}]},
+    {id:"r13", meal:"main", name:"Куриные котлеты с рисом", kcal:440, p:36, f:12, c:46,
+      ing:[{name:"куриное филе",qty:150,unit:"г"},{name:"рис",qty:70,unit:"г"},{name:"яйцо",qty:1,unit:"шт"},{name:"лук репчатый",qty:1,unit:"шт"}]},
+
+    {id:"r14", meal:"snack", name:"Яблоко с орехами", kcal:180, p:4, f:12, c:16,
+      ing:[{name:"яблоко",qty:1,unit:"шт"},{name:"орехи грецкие",qty:20,unit:"г"}]},
+    {id:"r15", meal:"snack", name:"Творог с ягодами", kcal:180, p:20, f:4, c:10,
+      ing:[{name:"творог",qty:150,unit:"г"},{name:"ягоды",qty:50,unit:"г"}]},
+    {id:"r16", meal:"snack", name:"Йогурт с бананом", kcal:200, p:14, f:4, c:28,
+      ing:[{name:"греческий йогурт",qty:150,unit:"г"},{name:"банан",qty:1,unit:"шт"}]},
+    {id:"r17", meal:"snack", name:"Бутерброд с сыром", kcal:220, p:10, f:9, c:24,
+      ing:[{name:"хлеб цельнозерновой",qty:2,unit:"шт"},{name:"сыр твёрдый",qty:30,unit:"г"}]}
+  ];
+
+  /* ======================= СОСТОЯНИЕ ======================= */
+
+  let idSeq = 1;
+  function nextId(){ return "f" + (idSeq++); }
+
+  const state = {
+    fridge: [
+      {id:nextId(), name:"куриное филе", category:"protein", qty:400, unit:"г"},
+      {id:nextId(), name:"яйцо", category:"protein", qty:6, unit:"шт"},
+      {id:nextId(), name:"творог", category:"dairy", qty:200, unit:"г"},
+      {id:nextId(), name:"молоко", category:"dairy", qty:500, unit:"мл"},
+      {id:nextId(), name:"сыр твёрдый", category:"dairy", qty:150, unit:"г"},
+      {id:nextId(), name:"овсянка", category:"grain", qty:300, unit:"г"},
+      {id:nextId(), name:"рис", category:"grain", qty:250, unit:"г"},
+      {id:nextId(), name:"гречка", category:"grain", qty:200, unit:"г"},
+      {id:nextId(), name:"помидор", category:"veg", qty:3, unit:"шт"},
+      {id:nextId(), name:"огурец", category:"veg", qty:2, unit:"шт"},
+      {id:nextId(), name:"лук репчатый", category:"veg", qty:2, unit:"шт"},
+      {id:nextId(), name:"шпинат", category:"veg", qty:100, unit:"г"},
+      {id:nextId(), name:"яблоко", category:"fruit", qty:4, unit:"шт"},
+      {id:nextId(), name:"банан", category:"fruit", qty:2, unit:"шт"},
+      {id:nextId(), name:"оливковое масло", category:"other", qty:200, unit:"мл"},
+      {id:nextId(), name:"мёд", category:"other", qty:100, unit:"г"}
+    ],
+    targetKcal: 2000,
+    plan: null,          // {breakfast:recipe, lunch:recipe, dinner:recipe, snack:recipe}
+    deducted: {},        // recipeId -> true, если ингредиенты уже списаны
+    eatenToday: {},       // recipeId -> true
+    history: [
+      {day:"Пн", pct:96}, {day:"Вт", pct:104}, {day:"Ср", pct:88},
+      {day:"Чт", pct:101}, {day:"Пт", pct:112}, {day:"Сб", pct:90}, {day:"Вс", pct:0}
+    ],
+    streak: 4
+  };
+
+  function findFridgeItem(name){
+    const n = name.trim().toLowerCase();
+    return state.fridge.find(it => it.name.trim().toLowerCase() === n);
+  }
+
+  /* ======================= РЕНДЕР: ХОЛОДИЛЬНИК ======================= */
+
+  function renderFridge(){
+    const wrap = document.getElementById("shelfGroups");
+    wrap.innerHTML = "";
+    const order = ["protein","veg","fruit","dairy","grain","other"];
+    order.forEach(cat=>{
+      const items = state.fridge.filter(it=>it.category===cat);
+      const shelf = document.createElement("div");
+      shelf.className = "shelf";
+      shelf.innerHTML = `
+        <div class="shelf-title">
+          ${CATEGORY_ICONS[cat]}
+          <span>${CATEGORY_LABELS[cat]}</span>
+          <span class="count mono">${items.length}</span>
+        </div>
+        <div class="shelf-body"></div>
+      `;
+      const body = shelf.querySelector(".shelf-body");
+      if(items.length===0){
+        body.innerHTML = `<div class="shelf-empty">Пока пусто — добавьте продукт справа</div>`;
+      } else {
+        items.forEach(it=>{
+          const row = document.createElement("div");
+          row.className = "fridge-item";
+          row.innerHTML = `
+            <span class="name">${capitalize(it.name)}</span>
+            <div class="stepper">
+              <button type="button" aria-label="Уменьшить количество" data-act="dec" data-id="${it.id}">−</button>
+              <span class="qty mono">${it.qty} ${it.unit}</span>
+              <button type="button" aria-label="Увеличить количество" data-act="inc" data-id="${it.id}">+</button>
+            </div>
+            <button type="button" class="btn-quiet btn-small" data-act="remove" data-id="${it.id}" aria-label="Удалить продукт">Убрать</button>
+          `;
+          body.appendChild(row);
+        });
+      }
+      wrap.appendChild(shelf);
+    });
+  }
+
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  document.getElementById("shelfGroups").addEventListener("click", e=>{
+    const btn = e.target.closest("button[data-act]");
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const item = state.fridge.find(i=>i.id===id);
+    if(!item) return;
+    const step = (item.unit==="шт") ? 1 : 10;
+    if(btn.dataset.act==="inc"){ item.qty += step; }
+    if(btn.dataset.act==="dec"){ item.qty = Math.max(0, item.qty - step); }
+    if(btn.dataset.act==="remove"){ state.fridge = state.fridge.filter(i=>i.id!==id); }
+    renderFridge();
+  });
+
+  document.getElementById("addForm").addEventListener("submit", e=>{
+    e.preventDefault();
+    const name = document.getElementById("itemName").value.trim();
+    const category = document.getElementById("itemCategory").value;
+    const qty = parseFloat(document.getElementById("itemQty").value) || 0;
+    const unit = document.getElementById("itemUnit").value;
+    if(!name) return;
+    const existing = findFridgeItem(name);
+    if(existing){
+      existing.qty += qty;
+    } else {
+      state.fridge.push({id:nextId(), name:name.toLowerCase(), category, qty, unit});
+    }
+    e.target.reset();
+    document.getElementById("itemQty").value = 1;
+    renderFridge();
+  });
+
+  /* ======================= ЛОГИКА ПОДБОРА МЕНЮ ======================= */
+
+  function ingredientStatus(ing){
+    const have = findFridgeItem(ing.name);
+    const availableQty = have ? have.qty : 0;
+    const ok = availableQty >= ing.qty;
+    return {ok, missingQty: ok ? 0 : (ing.qty - availableQty), have};
+  }
+
+  function scoreRecipe(recipe, slotTargetKcal){
+    const statuses = recipe.ing.map(ingredientStatus);
+    const okCount = statuses.filter(s=>s.ok).length;
+    const matchScore = okCount / recipe.ing.length;
+    const kcalScore = 1 / (1 + Math.abs(recipe.kcal - slotTargetKcal) / slotTargetKcal);
+    return matchScore*0.7 + kcalScore*0.3;
+  }
+
+  function buildPlan(){
+    const target = state.targetKcal;
+    const breakfastPool = RECIPES.filter(r=>r.meal==="breakfast");
+    const mainPool = RECIPES.filter(r=>r.meal==="main");
+    const snackPool = RECIPES.filter(r=>r.meal==="snack");
+
+    const breakfast = [...breakfastPool].sort((a,b)=>
+      scoreRecipe(b, target*MEAL_SHARE.breakfast) - scoreRecipe(a, target*MEAL_SHARE.breakfast))[0];
+
+    const snack = [...snackPool].sort((a,b)=>
+      scoreRecipe(b, target*MEAL_SHARE.snack) - scoreRecipe(a, target*MEAL_SHARE.snack))[0];
+
+    const rankedMains = [...mainPool].sort((a,b)=>
+      scoreRecipe(b, target*MEAL_SHARE.lunch) - scoreRecipe(a, target*MEAL_SHARE.lunch));
+    const first = rankedMains[0];
+    const second = rankedMains.find(r=>r.id!==first.id) || rankedMains[0];
+    // блюдо покалорийнее — на обед, второе — на ужин
+    const lunch = first.kcal >= second.kcal ? first : second;
+    const dinner = first.kcal >= second.kcal ? second : first;
+
+    return {breakfast, lunch, dinner, snack};
+  }
+
+  document.getElementById("generateBtn").addEventListener("click", ()=>{
+    state.plan = buildPlan();
+    state.deducted = {};
+    state.eatenToday = {};
+    renderPlan();
+    renderShopping();
+    renderDiary();
+  });
+
+  function renderPlan(){
+    const area = document.getElementById("planArea");
+    if(!state.plan){
+      area.innerHTML = `<div class="empty-plan">Нажмите «Сформировать меню», чтобы подобрать блюда из вашего холодильника.</div>`;
+      return;
+    }
+    const order = ["breakfast","lunch","dinner","snack"];
+    area.innerHTML = `<div class="plan-grid" id="planGrid"></div>`;
+    const grid = document.getElementById("planGrid");
+    order.forEach(slot=>{
+      const r = state.plan[slot];
+      const statuses = r.ing.map(ingredientStatus);
+      const eaten = !!state.eatenToday[r.id];
+      const card = document.createElement("div");
+      card.className = "recipe-card";
+      card.innerHTML = `
+        <span class="slot">${MEAL_LABELS[slot]}</span>
+        <h3>${r.name}</h3>
+        <div class="macro-row">
+          <span><b>${r.kcal}</b> ккал</span>
+          <span>Б <b>${r.p}</b>г</span>
+          <span>Ж <b>${r.f}</b>г</span>
+          <span>У <b>${r.c}</b>г</span>
+        </div>
+        <ul class="ingredient-list">
+          ${r.ing.map((ing,i)=>`<li><span class="dot ${statuses[i].ok?'ok':'missing'}"></span>${capitalize(ing.name)} — ${ing.qty} ${ing.unit}</li>`).join("")}
+        </ul>
+        <div class="card-foot">
+          <button type="button" class="eaten-toggle ${eaten?'done':''}" data-recipe="${r.id}" data-slot="${slot}">
+            ${eaten ? "Съедено ✓" : "Отметить съеденным"}
+          </button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll(".eaten-toggle").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const rid = btn.dataset.recipe;
+        const recipe = RECIPES.find(x=>x.id===rid);
+        const nowEaten = !state.eatenToday[rid];
+        state.eatenToday[rid] = nowEaten;
+
+        if(nowEaten && !state.deducted[rid]){
+          recipe.ing.forEach(ing=>{
+            const have = findFridgeItem(ing.name);
+            if(have){ have.qty = Math.max(0, have.qty - ing.qty); }
+          });
+          state.deducted[rid] = true;
+          renderFridge();
+        } else if(!nowEaten && state.deducted[rid]){
+          recipe.ing.forEach(ing=>{
+            const have = findFridgeItem(ing.name);
+            if(have){ have.qty += ing.qty; }
+          });
+          state.deducted[rid] = false;
+          renderFridge();
+        }
+        renderPlan();
+        renderShopping();
+        renderDiary();
+      });
+    });
+  }
+
+  /* ======================= ПОКУПКИ ======================= */
+
+  function renderShopping(){
+    const area = document.getElementById("shoppingArea");
+    if(!state.plan){
+      area.innerHTML = `<div class="empty-plan">Сформируйте меню на вкладке «Меню на день», чтобы увидеть, чего не хватает.</div>`;
+      return;
+    }
+
+    const need = {}; // key: name|unit -> qty missing
+    Object.values(state.plan).forEach(r=>{
+      r.ing.forEach(ing=>{
+        const st = ingredientStatus(ing);
+        if(!st.ok){
+          const key = ing.name + "|" + ing.unit;
+          need[key] = (need[key]||0) + st.missingQty;
+        }
+      });
+    });
+    const needList = Object.keys(need).map(key=>{
+      const [name, unit] = key.split("|");
+      return {name, unit, qty: need[key]};
+    });
+
+    const presentCategories = new Set(state.fridge.filter(i=>i.qty>0).map(i=>i.category));
+    const missingCategories = Object.keys(CATEGORY_LABELS).filter(c=>!presentCategories.has(c));
+
+    let html = "";
+    if(needList.length===0){
+      html += `<div class="balance-note"><b>Всё для сегодняшнего меню уже есть</b>Докупать для текущего плана ничего не нужно.</div>`;
+    }
+    html += `<div class="shop-columns"><div>`;
+    if(needList.length){
+      html += `<div class="shop-list">` + needList.map(n=>`
+        <div class="shop-row">
+          <span>${capitalize(n.name)}</span>
+          <span class="qty">докупить ${round1(n.qty)} ${n.unit}</span>
+        </div>`).join("") + `</div>`;
+    }
+    html += `</div><div>`;
+    if(missingCategories.length){
+      html += `<div class="balance-note"><b>Для баланса рациона</b>В холодильнике совсем нет продуктов из категорий: ${missingCategories.map(c=>CATEGORY_LABELS[c].toLowerCase()).join(", ")}. Стоит пополнить запас, чтобы меню оставалось разнообразным.</div>`;
+    } else {
+      html += `<div class="balance-note"><b>Рацион сбалансирован</b>Продукты есть во всех основных категориях.</div>`;
+    }
+    html += `</div></div>`;
+
+    area.innerHTML = html;
+  }
+
+  function round1(n){ return Math.round(n*10)/10; }
+
+  /* ======================= ДНЕВНИК / ТАРЕЛКА ======================= */
+
+  function renderDiary(){
+    let p=0, f=0, c=0;
+    Object.keys(state.eatenToday).forEach(rid=>{
+      if(!state.eatenToday[rid]) return;
+      const r = RECIPES.find(x=>x.id===rid);
+      if(r){ p+=r.p; f+=r.f; c+=r.c; }
+    });
+    const kcalP = p*4, kcalF = f*9, kcalC = c*4;
+    const consumed = kcalP + kcalF + kcalC;
+    const target = state.targetKcal;
+    const cappedFrac = Math.min(consumed/target, 1);
+
+    let ring;
+    if(consumed<=0){
+      ring = `conic-gradient(var(--line) 0deg 360deg)`;
+    } else {
+      const dP = 360 * cappedFrac * (kcalP/consumed);
+      const dF = 360 * cappedFrac * (kcalF/consumed);
+      const dC = 360 * cappedFrac * (kcalC/consumed);
+      const a1 = dP, a2 = dP+dF, a3 = dP+dF+dC;
+      ring = `conic-gradient(var(--sage) 0deg ${a1}deg, var(--turmeric) ${a1}deg ${a2}deg, var(--beet) ${a2}deg ${a3}deg, var(--line) ${a3}deg 360deg)`;
+    }
+    document.getElementById("plateRing").style.background = ring;
+    document.getElementById("plateKcal").textContent = Math.round(consumed);
+    document.getElementById("plateTarget").textContent = target;
+
+    const overflowEl = document.getElementById("overflowNote");
+    if(consumed > target){
+      overflowEl.style.display = "block";
+      overflowEl.textContent = `Превышение цели на ${Math.round(consumed-target)} ккал`;
+    } else {
+      overflowEl.style.display = "none";
+    }
+
+    // журнал съеденного
+    const logEl = document.getElementById("eatenLog");
+    const eatenIds = Object.keys(state.eatenToday).filter(id=>state.eatenToday[id]);
+    if(eatenIds.length===0){
+      logEl.innerHTML = `<li class="empty">Пока ничего не отмечено</li>`;
+    } else {
+      logEl.innerHTML = eatenIds.map(id=>{
+        const r = RECIPES.find(x=>x.id===id);
+        return `<li><b>${r.name}</b><span>${r.kcal} ккал</span></li>`;
+      }).join("");
+    }
+
+    // история — обновим сегодняшний столбец (последний)
+    state.history[state.history.length-1].pct = target ? Math.round((consumed/target)*100) : 0;
+    renderHistory();
+
+    document.getElementById("streakValue").textContent = state.streak;
+  }
+
+  function renderHistory(){
+    const wrap = document.getElementById("historyBars");
+    wrap.innerHTML = "";
+    state.history.forEach(day=>{
+      const pct = Math.max(0, day.pct);
+      const height = Math.min(pct, 130); // визуально ограничим высоту
+      const over = pct > 110;
+      const col = document.createElement("div");
+      col.className = "bar-col";
+      col.innerHTML = `
+        <div class="bar ${over?'over':''}" style="height:${Math.max(6, height*0.7)}px" title="${pct}% от цели"></div>
+        <span class="day-label">${day.day}</span>
+      `;
+      wrap.appendChild(col);
+    });
+  }
+
+  /* ======================= ТАБЫ ======================= */
+
+  document.querySelectorAll("nav.tabs button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll("nav.tabs button").forEach(b=>{
+        b.classList.remove("active");
+        b.setAttribute("aria-selected","false");
+      });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected","true");
+      document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+      document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  /* ======================= ЦЕЛЬ ПО КАЛОРИЯМ ======================= */
+
+  const kcalSlider = document.getElementById("kcalTarget");
+  kcalSlider.addEventListener("input", ()=>{
+    state.targetKcal = parseInt(kcalSlider.value,10);
+    document.getElementById("kcalTargetValue").textContent = state.targetKcal;
+    renderDiary();
+  });
+
+  /* ======================= СТАРТ ======================= */
+
+  renderFridge();
+  renderPlan();
+  renderShopping();
+  renderDiary();
+
+})();
+</script>
+</body>
+</html>
