@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — DietPlan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}"></style>
+</head>
+<body>
+    <header>
+        <h1><span class="teal">Diet</span><span class="green">Plan</span></h1>
+        <p>Войди в аккаунт или создай новый</p>
+    </header>
+
+    <section class="auth">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <label for="login">Логин</label>
+            <input type="text" id="login" name="login" required autofocus>
+
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password" required minlength="6">
+
+            <button type="submit">Войти / Зарегистрироваться</button>
+        </form>
+
+        <p class="hint">Если такого логина ещё нет — аккаунт создастся автоматически.</p>
+    </section>
+
+    <footer>
+        <p>© 2026 DietPlan</p>
+    </footer>
+</body>
+</html>

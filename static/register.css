@@ -1,0 +1,109 @@
+/* ==========================================
+   ОБЩИЕ НАСТРОЙКИ (в стиле index.html)
+   ========================================== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f7f5;
+    color: #1f2e2b;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+}
+
+header {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    padding-top: 40px;
+}
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+.teal {
+    color: #16afa0;
+}
+.green {
+    color: #365451;
+}
+
+/* ==========================================
+   БЛОК ФОРМЫ
+   ========================================== */
+.auth {
+    max-width: 360px;
+    margin: 20px auto;
+    padding: 24px;
+    background-color: white;
+    border: 1px solid #d9e6e2;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth label {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: #365451;
+}
+
+.auth input {
+    padding: 10px;
+    border: 1px solid #d9e6e2;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #f2f7f5;
+    color: #1f2e2b;
+}
+
+.auth input:focus {
+    outline: none;
+    border-color: #16afa0;
+}
+
+.auth button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    color: white;
+    background-color: #16afa0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.auth button:hover {
+    background-color: #128f83;
+}
+
+.auth .hint {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #5c6f6a;
+}
+
+.flashes {
+    list-style: none;
+    padding: 8px 12px;
+    margin: 0 0 8px;
+    background-color: #fdecea;
+    border: 1px solid #f3b8b0;
+    border-radius: 8px;
+    color: #b23a2e;
+    font-size: 0.9rem;
+}
+
+/* ==========================================
+   ПОДВАЛ
+   ========================================== */
+footer {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    color: #5c6f6a;
+    padding: 20px;
+    padding-bottom: 40px;
+}

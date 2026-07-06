@@ -1,7 +1,6 @@
 /* ==========================================
    ОБЩИЕ НАСТРОЙКИ
    ========================================== */
-
 body {
     font-family: Arial, sans-serif;   /* обычный шрифт, есть на любом устройстве */
     background-color: #f2f7f5;        /* светло-мятный фон */
@@ -18,43 +17,34 @@ header, .top, .bot, footer {
     padding: 20px;
 }
 
-
 /* ==========================================
    ШАПКА
    ========================================== */
-
 header {
     text-align: center;
     padding-top: 40px;
 }
-
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 8px;
 }
-
 .teal {
     color: #16afa0;   /* бирюзовый */
 }
-
 .green {
     color: #365451;   /* тёмно-зелёный */
 }
 
-
 /* ==========================================
    ВЕРХНИЙ БЛОК (описание сервиса)
    ========================================== */
-
 .top {
     text-align: center;
 }
-
 .top h2 {
     font-size: 1.6rem;
     margin-bottom: 12px;
 }
-
 .top button {
     margin-top: 16px;
     padding: 12px 24px;
@@ -65,21 +55,17 @@ header h1 {
     border-radius: 8px;
     cursor: pointer;
 }
-
 .top button:hover {
     background-color: #128f83;
 }
 
-
 /* ==========================================
    НИЖНИЙ БЛОК (карточки с едой)
    ========================================== */
-
 .bot h2 {
     text-align: center;
     margin-bottom: 20px;
 }
-
 .meal-card {
     background-color: white;
     border: 1px solid #d9e6e2;
@@ -87,28 +73,23 @@ header h1 {
     padding: 16px;
     margin-bottom: 12px;
 }
-
 .meal-card h3 {
     margin: 0 0 6px 0;
     font-size: 1.1rem;
     color: #365451;
 }
-
 .meal-card p {
     margin: 0 0 8px 0;
     color: #5c6f6a;
 }
-
 .kcal {
     font-weight: bold;
     color: #ff8a5c;   /* цитрусовый акцент для калорий */
 }
 
-
 /* ==========================================
    ПОДВАЛ
    ========================================== */
-
 footer {
     text-align: center;
     color: #5c6f6a;
