@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styl.css">
+</head>
+<body>
+    <div class="Kcard">
+    
+    <h1 class="zagolovok">Регистрация</h1>
+    
+    <div class="card1">
+        <label>Логин</label><br>
+        <input class="imy wid" type="text" placeholder="Введите ваш логин...">
+    </div>
+    
+    <div class="card3">
+        <label>Пароль</label><br>
+        <input class="parol wid" type="password" placeholder="Введите ваш пароль...">
+    </div>
+    
+    <div class="card4">
+            <button type="button" class="soglashenie">
+                <input type="checkbox" class="checkbox" id="agree-checkbox">
+                Я согласен
+            </button>
+    </div>
+      <form method="post" action="{{ url_for('login') }}"">
+         <button type="submit" class="sub-5">Зарегистрироваться</button>
+      </form>
+    </div>
+
+</body>
+</html>
