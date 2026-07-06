@@ -4,7 +4,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def main():
-    return render_template("index.html")
+    username = request.cookies.get("login")
+    return render_template("index.html", login=username)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -15,6 +16,6 @@ def login():
         resp = make_response(render_template('login.html', login=login_val))
         resp.set_cookie("login", login_val)
         return resp
-    return render_template("login.html", login=login)
+    return render_template("login.html", login=None)
 
 app.run(debug=True)
